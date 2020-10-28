@@ -12,39 +12,86 @@ test('GetOB', t => {
 	t.truthy(Array.isArray(trader.getSellOrders()));
 });
 
-test('addOrder', t => {
+test.skip('Do Trade by SelectedPrice', t => {
 	
-	const Order1 = {price: 50, amount:3, type: "B", status: "PE"}
-	const Order2 = {price: 100, amount:4, type: "S", status: "PE"}
-	const Order3 = {price: 100, amount:5, type: "B", status: "PE"}
+	const Order1 = {price: 50, amount:3, type: "B", status: "GO"}
+	const Order2 = {price: 100, amount:4, type: "S", status: "GO"}
+	const Order3 = {price: 100, amount:10, type: "B", status: "GO"}
+	const Order4 = {price: 100, amount:10, type: "B", status: "GO"}
+	const Order5 = {price: 100, amount:2, type: "S", status: "GO"}
+	const Order6 = {price: 100, amount:10, type: "S", status: "GO"}
 	
 	trader.showOrderBooks()
 
-	// 미체결 매수 주문
-	const beforeOrder1 = trader.getOrderBooks().B.length
+	// 미체결 매수 주문 (새 가격 - 추가되어야함)
 	trader.doTrade(Order1)
-	const AfterOrder1 = trader.getOrderBooks().B.length
+	trader.showOrderBooks()
+	
+	// 미체결 매도 주문 (같은가격 - 병합되어야함)
+	trader.doTrade(Order2)
+	trader.showOrderBooks()
 
-	t.is(beforeOrder1, AfterOrder1 - 1);
+	// 체결 매수 주문 (매도자 일부 체결)
+	trader.doTrade(Order3)
+	trader.showOrderBooks()
+
+	// 체결 매수 주문 (매수자 일부 체결)
+	trader.doTrade(Order4)
+	trader.showOrderBooks()
+	
+	// 체결 매도 주문 (매수자 일부 체결)
+	trader.doTrade(Order5)
+	trader.showOrderBooks()
+
+	// 체결 매도 주문 (매수자 일부 체결)
+	trader.doTrade(Order6)
+	trader.showOrderBooks()
+
+	t.is(5, 5);
+});
+
+test('Do Trade by Beyond', t => {
+	
+	const Order1 = {price: 120, amount:1, type: "B", status: "GO"}
+
+	// 체결 매수 주문 (최저매도가 이상 가격 - 최저 매도가랑 매칭 되어야함 )
+	trader.doTrade(Order1)
+	trader.showOrderBooks()
 
 	
-	// 미체결 매도 주문
-	const beforeOrder2 = trader.getOrderBooks().S.length
+	const Order2 = {price: 130, amount:1, type: "B", status: "GO"}
+
+	// 체결 매수 주문 (최저매도가 이상 가격 - 최저 매도가랑 매칭 되어야함 )
 	trader.doTrade(Order2)
-	const AfterOrder2 = trader.getOrderBooks().S.length
-
-	t.is(beforeOrder2, AfterOrder2 - 1);
-
-	// trader.tradeOrder(Order2)
-	// t.is(trader.getOrderBooks().S.length, 4);
-	// trader.showOrderBooks()
-
-	// trader.addOrder(Order3)
-	// t.is(trader.getOrderBooks().B.length, 5);
-	// trader.showOrderBooks()
-
-
-
 	trader.showOrderBooks()
+
+	
+	const Order3 = {price: 120, amount:20, type: "B", status: "GO"}
+
+	// 체결 매수 주문 (일부 싹쓸이 주문)
+	trader.doTrade(Order3)
+	trader.showOrderBooks()
+
+	const Order4 = {price: 20, amount:1, type: "S", status: "GO"}
+
+	// 체결 매수 주문 (최저매도가 이상 가격 - 최저 매도가랑 매칭 되어야함 )
+	trader.doTrade(Order4)
+	trader.showOrderBooks()
+
+	
+	const Order5 = {price: 30, amount:1, type: "S", status: "GO"}
+
+	// 체결 매수 주문 (최저매도가 이상 가격 - 최저 매도가랑 매칭 되어야함 )
+	trader.doTrade(Order5)
+	trader.showOrderBooks()
+
+	
+	const Order6 = {price: 20, amount:20, type: "S", status: "GO"}
+
+	// 체결 매수 주문 (일부 싹쓸이 주문)
+	trader.doTrade(Order6)
+	trader.showOrderBooks()
+	t.is(5, 5);
+
 
 });

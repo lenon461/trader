@@ -8,19 +8,19 @@ export const BuyOrders = [
     },
     {
         price: 20,
-        amount: 12,
+        amount: 10,
         type: "B",
         status: "GO"
     },
     {
         price: 30,
-        amount: 13,
+        amount: 10,
         type: "B",
         status: "GO"
     },
     {
         price: 40,
-        amount: 14,
+        amount: 10,
         type: "B",
         status: "GO"
     },

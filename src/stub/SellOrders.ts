@@ -3,19 +3,19 @@
 export const SellOrders = [
     {
         price: 130,
-        amount: 13,
+        amount: 10,
         type: "S",
         status: "GO"
     },
     {
         price: 120,
-        amount: 12,
+        amount: 10,
         type: "S",
         status: "GO"
     },
     {
         price: 110,
-        amount: 11,
+        amount: 10,
         type: "S",
         status: "GO"
     },
