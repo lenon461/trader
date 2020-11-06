@@ -8,16 +8,18 @@ export class ChartService {
       from: moment().subtract(30, 'days').valueOf(),
       to: moment().valueOf()
     }
-    options.from = options.from ? moment(options.from).unix() : default_options.from
-    options.to = options.to ? moment(options.to).unix() : default_options.to
+    options.from = options.from ? (options.from) : default_options.from
+    options.to = options.to ? (options.to) : default_options.to
     if (options.time) return this.updateStub((options.time))
     return this.makeInitStub(options);
   }
   //.format("YYYY-MM-DD");
   makeInitStub(options) {
-    const from = moment(options.from)
-    const to = moment(options.to)
+
+    const from = moment(parseInt(options.from))
+    const to = moment(parseInt(options.to))
     const feeds = [];
+    console.log(from, to)
     let time = from;
     while (time <= to) {
       feeds.push(this.makeRandomFeed(time.format("YYYY-MM-DD")))
