@@ -19,12 +19,12 @@ export class ChartService {
     const from = moment(parseInt(options.from))
     const to = moment(parseInt(options.to))
     const feeds = [];
-    console.log(from, to)
     let time = from;
     while (time <= to) {
       feeds.push(this.makeRandomFeed(time.format("YYYY-MM-DD")))
       time = time.add(1, 'days')
     }
+    console.log(JSON.stringify(feeds.slice(0, 20)))
     return feeds
   }
   updateStub(timestamp) {
