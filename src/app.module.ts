@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ChartModule } from './api/chart/chart.module';
+import { ChartModule } from './chart/chart.module';
 
 @Module({
   imports: [ChartModule],

@@ -57,3 +57,6 @@ type ChartQuery = {
   symbol?: string,
   interval?: string
 }
+  
+
+  
