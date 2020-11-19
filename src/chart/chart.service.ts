@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import * as moment from "moment";
-
+import * as _ from "lodash"
+import Stub from "../stub"
 @Injectable()
 export class ChartService {
-  getCandles(options: ChartQuery): Array<object> {
+  
+  getCandles(options): Array<object> {
     const default_options = {
       from: moment().subtract(30, 'days').valueOf(),
       to: moment().valueOf()
@@ -41,12 +43,36 @@ export class ChartService {
     const deltadPrice = noisedPrice * delta;
     return { time, open: noisedPrice, high: noisedPrice, low: deltadPrice, close: deltadPrice }
   }
+
+  getData(params: ChartParams) {
+    const {name, type, count = 200, to} = params
+    const data = _.orderBy(Stub[name].data, ['time'], ['asc']);
+    const returnData = [];
+    if(!to) return data.slice(300, 500)
+    for (let index = 0; index < data.length; index++) {
+      const element = data[index];
+      if(index == count) break;
+      if(to && moment(to).valueOf() > moment(element.time).valueOf()) continue;
+      returnData.push(element)  
+    }
+    return returnData
+  }
+
+  
+
 }
 
-type ChartQuery = {
-  time?: string,
-  from?: number,
-  to?: number,
+
+
+type ChartParams = {
+  name: string,
+  type: string,
   symbol?: string,
+  count?: number,
+  to?: string,
   interval?: string
+}
+type ReturnChart = {
+  data: object,
+
 }

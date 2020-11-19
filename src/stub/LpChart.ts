@@ -6,9 +6,10 @@ function getRandomPrice() {
   return Math.round(100 + (Math.random() - 0.5) * 20)
 }
 
-for (let index = 0; index < 100; index++) {
+for (let index = 0; index < 500; index++) {
   const day = today.subtract(1, 'days').format("YYYY-MM-DD")
-  init.push({ time: day, value: getRandomPrice() })
+  init.unshift({ time: day, value: getRandomPrice() })
 }
-console.log(init)
+init.reverse()
+console.log(JSON.stringify(init))
 export { init }
