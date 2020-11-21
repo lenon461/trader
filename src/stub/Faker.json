@@ -1,0 +1,29 @@
+{
+    "data": {
+        "id": "D0QIxicbLmrkll0Xkgd8aHH2LZOWFJzKC5hUf57UMQLLaw",
+        "accountId": "6PLjQ3w380noFdEuPjfbGT8UYzanHMlAqLltNHJdElOG",
+        "puuid": "UqG-Qt2BZkroOeuZwpYrc99wfQl4EeORj9q1JkuEOk4Z2tE9PcRZ0zde5h0lWBeIZlbXF6liCTE1dg",
+        "name": "Hide on bush",
+        "profileIconId": 6,
+        "revisionDate": 1605850167000,
+        "summonerLevel": 365
+    }
+}
+[
+    {
+        "leagueId": "58d53e1d-0514-3760-a988-50bf33fb782f",
+        "queueType": "RANKED_SOLO_5x5",
+        "tier": "MASTER",
+        "rank": "I",
+        "summonerId": "D0QIxicbLmrkll0Xkgd8aHH2LZOWFJzKC5hUf57UMQLLaw",
+        "summonerName": "Hide on bush",
+        "leaguePoints": 284,
+        "wins": 606,
+        "losses": 599,
+        "veteran": false,
+        "inactive": false,
+        "freshBlood": false,
+        "hotStreak": true
+        "time":
+    }
+]
