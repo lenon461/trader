@@ -8,11 +8,11 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+  async create(@Body() createOrderDto: CreateOrderDto) {
+    const isSaved = await this.ordersService.create(createOrderDto);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.ordersService.findAll();
   }

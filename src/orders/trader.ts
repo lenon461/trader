@@ -16,12 +16,8 @@ export class Trader {
     }
 
     initializeOrderBook() {
-        const initSellOrders = () => (require("../stub/SellOrders").SellOrders)
-        const initBuyOrders = () => (require("../stub/BuyOrders").BuyOrders)
-
-        this.SellOrders = initSellOrders()
-        this.BuyOrders = initBuyOrders()
-
+        this.SellOrders = []
+        this.BuyOrders = []
     }
 
     // getter
@@ -99,7 +95,15 @@ export class Trader {
             buyer = order;
         }
 
-        if (buyer.price >= seller.price) {
+        if(!buyer) {
+            logger('info', '매수주문이 없음')
+            this.addOrder(seller)
+        }
+        else if(!seller) {
+            logger('info', '매도주문이 없음')
+            this.addOrder(buyer)
+        }
+        else if (buyer.price >= seller.price) {
             logger('info', "가격 충족 => 체결")
             if (buyer.amount < seller.amount) {
                 logger('info', "buyer 수량 전체 충족 seller 수량 일부 충족")

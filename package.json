@@ -30,6 +30,7 @@
     "@nestjs/platform-ws": "^7.5.2",
     "@nestjs/websockets": "^7.5.2",
     "async-redis": "^1.1.7",
+    "fs": "0.0.1-security",
     "generic-pool": "^3.7.1",
     "moment": "^2.29.1",
     "mongoose": "^5.10.15",

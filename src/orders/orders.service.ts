@@ -1,15 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { Model } from 'mongoose';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { Order } from './interfaces/order.interface';
 
 @Injectable()
 export class OrdersService {
-  create(createOrderDto: CreateOrderDto) {
-    return 'This action adds a new order';
+    constructor(@Inject('ORDER_MODEL') private readonly orderModel: Model<Order>) { }
+    
+  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+    const createdOrder = new this.orderModel(createOrderDto);
+        return createdOrder.save();
   }
 
   findAll() {
-    return `This action returns all orders`;
+    return this.orderModel.find().exec();
   }
 
   findOne(id: number) {
