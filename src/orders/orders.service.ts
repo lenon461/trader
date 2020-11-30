@@ -6,11 +6,11 @@ import { Order } from './interfaces/order.interface';
 
 @Injectable()
 export class OrdersService {
-    constructor(@Inject('ORDER_MODEL') private readonly orderModel: Model<Order>) { }
-    
+  constructor(@Inject('ORDER_MODEL') private readonly orderModel: Model<Order>) { }
+
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const createdOrder = new this.orderModel(createOrderDto);
-        return createdOrder.save();
+    return createdOrder.save();
   }
 
   findAll() {
