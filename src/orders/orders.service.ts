@@ -4,12 +4,15 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './interfaces/order.interface';
 import { Logger } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @Inject('ORDER_MODEL') private readonly orderModel: Model<Order>,
-  ) { }
+  ) { 
+  }
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const createdOrder = new this.orderModel(createOrderDto);
@@ -28,12 +31,17 @@ export class OrdersService {
     return `This action returns a #${id} order`;
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async update(_id: number, updateOrderDto: UpdateOrderDto) {
+    const result =  await this.orderModel.updateOne({_id}, updateOrderDto).exec();
+    this.logger.debug(result)
   }
 
   remove(id: number) {
     return `This action removes a #${id} order`;
+  }
+  
+  deleteAll() {
+    return this.orderModel.deleteMany({memberId: "member1"});
   }
 
   private readonly logger = new Logger(OrdersService.name);
@@ -61,7 +69,6 @@ export class OrdersService {
       } else {
           destinationOrders = this.getBuyOrders()
       }
-      this.logger.debug("addOrder")
       for (let height = destinationOrders.length - 1; height >= 0; height--) {
           const targetOrder = destinationOrders[height];
 
@@ -97,7 +104,7 @@ export class OrdersService {
       }
 
   }
-  doTrade(order) {
+  async doTrade(order) {
       let buyer, seller;
       if (order.type == "S") {
           this.logger.debug( '매도주문이 들어옴')
@@ -122,24 +129,27 @@ export class OrdersService {
           if (buyer.amount < seller.amount) {
               this.logger.debug( "buyer 수량 전체 충족 seller 수량 일부 충족")
               buyer.status = "CM"
+              await this.filledOrder(buyer)
 
               seller.amount -= buyer.amount;
-              this.doTrade(seller)
+              await this.create(seller);
 
           }
           else if (buyer.amount === seller.amount) {
               this.logger.debug( "buyer 수량 전체 충족 seller 수량 전체 충족")
               buyer.status = "CM"
               seller.status = "CM"
-
+              await this.filledOrder(buyer)
+              await this.filledOrder(seller)
           }
 
           else if (buyer.amount > seller.amount) {
               this.logger.debug( "buyer 수량 일부 충족 seller 수량 전체 충족")
               seller.status = "CM"
+              await this.filledOrder(seller)
 
               buyer.amount -= seller.amount
-              this.doTrade(buyer)
+              await this.create(buyer);
           }
           else {
               throw new Error("가격 조건 오류")
@@ -152,5 +162,8 @@ export class OrdersService {
       }
   }
 
+  async filledOrder(order){
+    await this.update(order._id, order)
+  }
   
 }
