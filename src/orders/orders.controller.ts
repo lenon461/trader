@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { TradeService } from './trade.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectQueue } from '@nestjs/bull';
@@ -12,7 +11,6 @@ export class OrdersController {
   constructor(
     @InjectQueue('orders') private readonly ordersQueue: Queue,
     private readonly ordersService: OrdersService,
-    private readonly tradeService: TradeService
   ) {}
   
   private readonly logger = new Logger(OrdersController.name);
@@ -24,7 +22,7 @@ export class OrdersController {
 
   @Get()
   async findAll() {
-    return this.tradeService.getOrderBooks()
+    return this.ordersService.getOrderBooks()
   }
 
   @Get(':id')
