@@ -3,14 +3,22 @@ import { Model } from 'mongoose';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './interfaces/order.interface';
+import { TradeService } from './trade.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(@Inject('ORDER_MODEL') private readonly orderModel: Model<Order>) { }
+  constructor(
+    @Inject('ORDER_MODEL') private readonly orderModel: Model<Order>,
+    private readonly tradeService: TradeService
+  ) { }
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const createdOrder = new this.orderModel(createOrderDto);
-    return createdOrder.save();
+
+    const order = await createdOrder.save();
+    this.tradeService.doTrade(order);
+
+    return order
   }
 
   findAll() {
@@ -28,4 +36,6 @@ export class OrdersService {
   remove(id: number) {
     return `This action removes a #${id} order`;
   }
+
+  
 }
