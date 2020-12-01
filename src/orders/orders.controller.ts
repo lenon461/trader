@@ -11,22 +11,20 @@ export class OrdersController {
   constructor(
     @InjectQueue('orders') private readonly ordersQueue: Queue,
     private readonly ordersService: OrdersService
-  ) { }
-  private readonly logger = new Logger(OrdersController.name);
+  ) {}
 
+  private readonly logger = new Logger(OrdersController.name);
 
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto) {
-    const isSaved = await this.ordersService.create(createOrderDto);
+    this.logger.debug("in")
+    const order = await this.ordersService.create(createOrderDto);
+    await this.ordersQueue.add('order', order);
   }
 
-  @Get('all')
+  @Get()
   async findAll() {
-    await this.ordersQueue.add('order', {
-      file: 'order.dto',
-    });
     return this.ordersService.findAll();
-
   }
 
   @Get(':id')
