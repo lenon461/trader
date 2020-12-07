@@ -149,7 +149,7 @@ class Trader {
 
                 buyer.amount -= seller.amount
                 this.filledOrder(buyer)
-                
+
                 this.doTrade(buyer)
             }
             else {
@@ -165,6 +165,10 @@ class Trader {
 
     async filledOrder(order){
         this.ordersQueue.add('orderComplete', order)
+    }
+
+    private cancelOrder() {
+        
     }
 }
 

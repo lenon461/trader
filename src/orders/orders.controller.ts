@@ -22,12 +22,19 @@ export class OrdersController {
     return order
   }
 
+  @Delete('')
+  async cancelOrder(@Param('id') id: string) {
+    const order = await this.ordersService.find(id)
+    this.ordersQueue.add('orderCancel', order)
+    return order;
+  }
+
   @Put(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.ordersService.update(+id, updateOrderDto);
   }
 
-  @Delete()
+  @Delete('all')
   deleteAll() {
     return this.ordersService.deleteAll();
   }

@@ -22,10 +22,14 @@ export class OrdersService {
     const order = await createdOrder.save();
     return order
   }
-
+  async find(_id: string) {
+    const order =  await this.orderModel.findOne({_id}).exec();
+    return order
+  }
 
   async update(_id: number, updateOrderDto: UpdateOrderDto) {
     const result =  await this.orderModel.updateOne({_id}, updateOrderDto).exec();
+    this.logger.debug("update")
   }
 
   deleteAll() {

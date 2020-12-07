@@ -24,4 +24,12 @@ export class OrdersProcessor {
     this.logger.debug("orderComplete")
     this.ordersService.update(order._id, order)
   }
+  
+  @Process('orderCancel')
+  orderCancel(job: Job) {
+    const order = job.data
+    this.logger.debug("orderCancel")
+    // Trader.cancelOrder(job.data)
+    this.ordersService.update(order._id, order)
+  }
 }
