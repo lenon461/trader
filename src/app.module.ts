@@ -5,7 +5,7 @@ import { SummonersModule } from './summoners/summoners.module';
 import { PointsModule } from './points/points.module';
 import { OrdersModule } from './orders/orders.module';
 import { BullModule } from '@nestjs/bull';
-import { AudioModule } from './audio/audio.module';
+import { ProcessorModule } from './processor/processor.module';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { AudioModule } from './audio/audio.module';
         port: 6379,
       },
     }),
-    AudioModule, OrdersModule,
+    ProcessorModule, OrdersModule,
     ChartModule, EventsModule, SummonersModule, PointsModule],
 })
 

@@ -9,8 +9,8 @@ import { Logger } from '@nestjs/common';
 @Controller('orders')
 export class OrdersController {
   constructor(
-    @InjectQueue('orders') private readonly ordersQueue: Queue,
     private readonly ordersService: OrdersService,
+    @InjectQueue('orders') private readonly ordersQueue: Queue,
   ) {}
   
   private readonly logger = new Logger(OrdersController.name);
@@ -18,16 +18,8 @@ export class OrdersController {
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto) {
     const order = await this.ordersService.create(createOrderDto);
-  }
-
-  @Get()
-  async findAll() {
-    return this.ordersService.getOrderBooks()
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
+    this.ordersQueue.add('orderAdd', order)
+    return order
   }
 
   @Put(':id')
@@ -35,10 +27,6 @@ export class OrdersController {
     return this.ordersService.update(+id, updateOrderDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
-  }
   @Delete()
   deleteAll() {
     return this.ordersService.deleteAll();
