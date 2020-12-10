@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { OrdersService } from '../orders/orders.service';
 import { Queue } from 'bull';
 import * as Bull from 'bull';
+import {Order} from '../orders/interfaces/order.interface'
 
 class Trader {
 
@@ -14,7 +15,7 @@ class Trader {
     MKNAME = "TEST"
 
     //오더북
-    private SellOrders = [];
+    private SellOrders = []
     private BuyOrders = [];
 
     constructor(MKNAME) {
@@ -24,30 +25,86 @@ class Trader {
     }
 
     initializeOrderBook() {
-        this.SellOrders = []
-        this.BuyOrders = []
+        this.SellOrders = [
+            [{
+                price: 10,
+                amount: 10,
+                type: "B",
+                status: "GO"
+            }],
+            [{
+                price: 20,
+                amount: 10,
+                type: "B",
+                status: "GO"
+            }],
+            [{
+                price: 30,
+                amount: 10,
+                type: "B",
+                status: "GO"
+            }],
+            [   
+                {
+                    price: 40,
+                    amount: 10,
+                    type: "B",
+                    status: "GO",
+                    memberId: 1,
+                },{
+                    price: 40,
+                    amount: 20,
+                    type: "B",
+                    status: "GO",
+                    memberId: 2,
+                }]];
+        this.BuyOrders = [
+            [{
+                price: 130,
+                amount: 10,
+                type: "S",
+                status: "GO"
+            }],
+            [{
+                price: 120,
+                amount: 10,
+                type: "S",
+                status: "GO"
+            }],
+            [{
+                price: 110,
+                amount: 10,
+                type: "S",
+                status: "GO"
+            }],
+            [{
+                price: 100,
+                amount: 10,
+                type: "S",
+                status: "GO"
+            }],]
     }
 
     // getter
-    getBuyOrders() {
+    getBuyOrderBook() {
         return this.BuyOrders
     }
-    getSellOrders() {
+    getSellOrderBook() {
         return this.SellOrders
     }
     getOrderBooks() {
         return {
-            S: this.getSellOrders(),
-            B: this.getBuyOrders()
+            S: this.getSellOrderBook(),
+            B: this.getBuyOrderBook()
         }
     }
 
     // visual
     showOrderBooks() {
-        console.log("==============")
-        console.log({
-            S: this.getSellOrders(),
-            B: this.getBuyOrders()
+        this.logger.debug("==============")
+        this.logger.debug({
+            S: this.getSellOrderBook(),
+            B: this.getBuyOrderBook()
         })
     }
 
@@ -60,23 +117,26 @@ class Trader {
 
     // private logic
     private _addOrder(order) {
-        let destinationOrders;
+        let targetOrderBook;
         if (order.type == "S") {
-            destinationOrders = this.getSellOrders()
+            targetOrderBook = this.getSellOrderBook()
         } else {
-            destinationOrders = this.getBuyOrders()
+            targetOrderBook = this.getBuyOrderBook()
         }
 
-        for (let height = destinationOrders.length - 1; height >= 0; height--) {
-            const targetOrder = destinationOrders[height];
+        for (let height = targetOrderBook.length - 1; height >= 0; height--) {
+            const targetOrders = targetOrderBook[height];
+            const targetOrder = targetOrders[0];
+
 
             if (targetOrder.price === order.price) {
-                targetOrder.amount += order.amount;
+                
+                targetOrders.shift(order)
                 break;
             }
             else if (order.type === "S") {
                 if (targetOrder.price > order.price) {
-                    destinationOrders.splice(height + 1, 0, order)
+                    targetOrderBook.push([order])
                     break;
                 }
                 else if (targetOrder.price < order.price) {
@@ -85,7 +145,7 @@ class Trader {
             }
             else if (order.type === "B") {
                 if (targetOrder.price < order.price) {
-                    destinationOrders.splice(height + 1, 0, order)
+                    targetOrderBook.push([order])
                     break;
                 }
                 else if (targetOrder.price > order.price) {
@@ -95,75 +155,88 @@ class Trader {
             else {
                 throw new Error("Wrong order Type")
             }
-        }
-        if(destinationOrders.length == 0) {
-            destinationOrders.push(order)
+           
         }
 
     }
     private doTrade(order) {
-        let buyer, seller;
+        
+        let targetOrderBook;
         if (order.type == "S") {
-            this.logger.debug( '매도주문')
-            buyer = this.getBuyOrders().pop();
-            seller = order;
+            targetOrderBook = this.getSellOrderBook()
         } else {
-            this.logger.debug( '매수주문')
-            seller = this.getSellOrders().pop();
-            buyer = order;
+            targetOrderBook = this.getBuyOrderBook()
         }
+        const targetOrders = targetOrderBook[targetOrderBook.length - 1]
+        const taker = order;
 
-        if(!buyer) {
-            this.logger.debug( '매수주문이 없음')
-            this._addOrder(seller)
-        }
-        else if(!seller) {
-            this.logger.debug( '매도주문이 없음')
-            this._addOrder(buyer)
-        }
-        else if (buyer.price >= seller.price) {
-            this.logger.debug( "가격 충족 => 체결")
-            if (buyer.amount < seller.amount) {
-                this.logger.debug( "buyer 수량 전체 충족 seller 수량 일부 충족")
-                buyer.status = "CM"
-                this.filledOrder(buyer)
-
-                seller.amount -= buyer.amount;
-                this.filledOrder(seller)
-
-                this.doTrade(seller)
-
+        for (let index = targetOrders.length - 1; index >= 0; index--) {
+        
+            const targetOrder = targetOrders[index];
+            if(!targetOrder) {
+                this.logger.debug('메이커가 없음')
+                this._addOrder(taker)
             }
-            else if (buyer.amount === seller.amount) {
-                this.logger.debug( "buyer 수량 전체 충족 seller 수량 전체 충족")
-                buyer.status = "CM"
-                seller.status = "CM"
-                this.filledOrder(buyer)
-                this.filledOrder(seller)
+            
+            let buyer, seller;
+            if (order.type == "S") {
+                this.logger.debug('매도주문')
+                buyer = targetOrder;
+                seller = taker;
+            } else {
+                this.logger.debug('매수주문')
+                seller = targetOrder;
+                buyer = taker;
             }
 
-            else if (buyer.amount > seller.amount) {
-                this.logger.debug( "buyer 수량 일부 충족 seller 수량 전체 충족")
-                seller.status = "CM"
-                this.filledOrder(seller)
-
-                buyer.amount -= seller.amount
-                this.filledOrder(buyer)
-
-                this.doTrade(buyer)
+        
+            if (buyer.price >= seller.price) {
+                this.logger.debug( "가격 충족 => 체결")
+                this.logger.debug(buyer.price + '-' +  seller.price)
+                if (buyer.amount < seller.amount) {
+                    this.logger.debug( "buyer 수량 전체 충족 seller 수량 일부 충족")
+                    buyer.status = "CM"
+                    this.filledOrder(buyer)
+    
+                    seller.amount -= buyer.amount;
+                    this.filledOrder(seller)
+    
+                    this.doTrade(seller)
+    
+                }
+                else if (buyer.amount === seller.amount) {
+                    this.logger.debug( "buyer 수량 전체 충족 seller 수량 전체 충족")
+                    buyer.status = "CM"
+                    seller.status = "CM"
+                    this.filledOrder(buyer)
+                    this.filledOrder(seller)
+                }
+    
+                else if (buyer.amount > seller.amount) {
+                    this.logger.debug( "buyer 수량 일부 충족 seller 수량 전체 충족")
+                    seller.status = "CM"
+                    this.filledOrder(seller)
+    
+                    buyer.amount -= seller.amount
+                    this.filledOrder(buyer)
+    
+                    this.doTrade(buyer)
+                }
+                else {
+                    throw new Error("가격 조건 오류")
+                }
             }
-            else {
-                throw new Error("가격 조건 오류")
+            else if (buyer.price < seller.price) {
+                this.logger.debug( "가격 미충족 => 미체결")
+                this._addOrder(buyer)
+                this._addOrder(seller)
             }
+
         }
-        else if (buyer.price < seller.price) {
-            this.logger.debug( "가격 미충족 => 미체결")
-            this._addOrder(buyer)
-            this._addOrder(seller)
-        }
+
     }
 
-    async filledOrder(order){
+    filledOrder(order){
         this.ordersQueue.add('orderComplete', order)
     }
 

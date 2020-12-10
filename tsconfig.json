@@ -12,13 +12,13 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "paths": {
-      "@app/test": [
-        "libs/test/src"
-      ],
-      "@app/test/*": [
-        "libs/test/src/*"
-      ]
-    }
+    // "paths": {
+    //   "@app/test": [
+    //     "libs/test/src"
+    //   ],
+    //   "@app/test/*": [
+    //     "libs/test/src/*"
+    //   ]
+    // }
   }
 }
