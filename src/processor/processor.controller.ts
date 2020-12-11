@@ -13,4 +13,9 @@ export class ProcessorController {
     async orderbook() {
         return Trader.showOrderBooks();
     }
+    @Get('getorderbook')
+    async getorderbook() {
+        this.logger.debug(Trader.getOrderBooks())
+        return Trader.getOrderBooks();
+    }
 }

@@ -38,7 +38,7 @@ export class OrdersService {
   }
 
   deleteAll() {
-    return this.orderModel.deleteMany({memberId: "member1"});
+    this.orderModel.deleteMany({status: "GO"});
+    this.orderModel.deleteMany({status: "CM"});
   }
-
 }
