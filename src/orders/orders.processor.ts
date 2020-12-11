@@ -14,7 +14,6 @@ export class OrdersProcessor {
   
   @Process('orderAdd')
   orderAdd(job: Job) {
-    this.logger.debug("orderAdd")
     Trader.addOrder(job.data)
   }
 
